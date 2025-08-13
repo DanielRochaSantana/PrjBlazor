@@ -1,0 +1,60 @@
+﻿@page "/usuario"
+@using Backend.Domain.Models.Entity
+@attribute [StreamRendering]
+@rendermode InteractiveServer
+
+<PageTitle>Gerenciar Usuários</PageTitle>
+
+<h1>Gerenciar Usuários</h1>
+
+@if (usuarios == null)
+{
+    <p><em>Carregando...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Email</th>
+                <th>Celular</th>
+                <th>Status</th>
+                <th>Data Cadastro</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var usuario in usuarios!)
+            {
+                <tr>
+                    <td width="27%">@usuario.Nome</td>
+                    <td width="23%">@usuario.Email</td>
+                    <td width="14%">@usuario.Celular</td>
+                    <td width="10%">@(usuario.IsAtivo ? "Ativo" : "Inativo")</td>
+                    <td width="16%">@usuario.DataCadastro</td>
+                    <td width="10%"><button class="btn btn-primary" @onclick="() => AlterarUsuario(usuario)"> Editar </button></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<Usuario>? usuarios { get; set; } = new();
+    private Usuario? usuario { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        usuarios!.Add(new Usuario { Nome = "Usuário 01", Email = "Email 01", Celular = "Celular 01" });
+        usuarios!.Add(new Usuario { Nome = "Usuário 02", Email = "Email 02", Celular = "Celular 02" });
+        usuarios!.Add(new Usuario { Nome = "Usuário 03", Email = "Email 03", Celular = "Celular 03" });
+        usuarios!.Add(new Usuario { Nome = "Usuário 04", Email = "Email 04", Celular = "Celular 04" });
+        usuarios!.Add(new Usuario { Nome = "Usuário 05", Email = "Email 05", Celular = "Celular 05" });
+    }
+
+    private async void AlterarUsuario(Usuario _usuario)
+    {
+        usuario = _usuario;
+    }
+}
