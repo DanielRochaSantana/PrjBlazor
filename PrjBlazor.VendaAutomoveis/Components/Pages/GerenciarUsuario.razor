@@ -43,12 +43,13 @@ else
                     @foreach (var usuario in usuarios!)
                     {
                         <tr>
-                            <td width="23%">@usuario.Nome</td>
+                            <td width="22%">@usuario.Nome</td>
                             <td width="23%">@usuario.Email</td>
-                            <td width="18%">@usuario.Celular</td>
-                            <td width="10%">@(usuario.IsAtivo ? "Ativo" : "Inativo")</td>
-                            <td width="16%">@usuario.DataCadastro</td>
-                            <td width="10%"><button class="btn btn-primary" @onclick="() => AlterarUsuario(usuario)"> Editar </button></td>
+                            <td width="17%">@usuario.Celular</td>
+                            <td width="8%">@(usuario.IsAtivo ? "Ativo" : "Inativo")</td>
+                            <td width="14%">@usuario.DataCadastro</td>
+                            <td width="8%"><button class="btn btn-primary" @onclick="() => AdicionarAlterarUsuario(usuario)"> Editar </button></td>
+                            <td width="8%"><button class="btn btn-primary" @onclick="() => RemoverUsuario(usuario)"> Remover </button></td>
                         </tr>
                     }
                 </tbody>
@@ -56,7 +57,76 @@ else
         </div>
 
         <div class="tab-pane fade" id="pills-editar-add-usuario" role="tabpanel" aria-labelledby="pills-editar-add-usuario-tab">
-            Adicionar/Editar Usuário
+
+            <EditForm Model="usuario" OnValidSubmit="AdicionarAlterarUsuario" FormName="AdicionarAlterarUsuario">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <div class="row">
+                    &nbsp;
+                </div>
+                <div class="row">
+                    &nbsp;
+                </div>
+                <div class="row">
+                    &nbsp;
+                </div>
+                <div class="row">
+                    <div class="col-md-2">
+                        <label>
+                            Nome:
+                        </label>
+                    </div>
+                    <div class="col-md-8">
+                        <InputText @bind-Value="usuario!.Nome" class="form-control" />
+                    </div>
+                    <div class="col-md-2"></div>
+                </div>
+                <div class="row">
+                    &nbsp;
+                </div>
+                <div class="row">
+                    <div class="col-md-2">
+                        <label>
+                            Email:
+                        </label>
+                    </div>
+                    <div class="col-md-8">
+                        <InputText @bind-Value="usuario!.Email" class="form-control" />
+                    </div>
+                    <div class="col-md-2"></div>
+                </div>
+                <div class="row">
+                    &nbsp;
+                </div>
+                <div class="row">
+                    <div class="col-md-2">
+                        <label>
+                            Celular:
+                        </label>
+                    </div>
+                    <div class="col-md-8">
+                        <InputText @bind-Value="usuario!.Celular" class="form-control" />
+                    </div>
+                    <div class="col-md-2"></div>
+                </div>
+                <div class="row">
+                    &nbsp;
+                </div>
+                <div class="row">
+                    &nbsp;
+                </div>
+                <div class="row">
+                    &nbsp;
+                </div>
+                <div class="row">
+                    <div class="col-md-4"></div>
+                    <div class="col-md-4">
+                        <button type="submit" class="btn-primary form-control">Salvar</button>
+                    </div>
+                    <div class="col-md-4"></div>
+                </div>
+            </EditForm>
+
         </div>
 
         <div class="tab-pane fade" id="pills-add-editar-permissoes" role="tabpanel" aria-labelledby="pills-add-editar-permissoes-tab">
@@ -71,17 +141,105 @@ else
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct" crossorigin="anonymous"></script>
 
+<script>
+    function ClicarTabGerenciarUsuarios()
+    {
+    // debugger;
+    $('#pills-gerenciar-usuarios-tab').trigger('click');
+    };
+
+    function AlertAdicao()
+    {
+    // debugger;
+    alert("Usuário adicionado com sucesso.");
+    };
+
+    function ClicarTabEditarAddUsuario()
+    {
+    // debugger;
+    $('#pills-editar-add-usuario-tab').trigger('click');
+    };
+
+    function AlertEdicao()
+    {
+    // debugger;
+    alert("Usuário alterado com sucesso.");
+    };
+
+    function AlertRemocao()
+    {
+    // debugger;
+    alert("Usuário removido com sucesso.");
+    };
+</script>
+
 @code {
     private List<Usuario>? usuarios { get; set; } = new();
     private Usuario? usuario { get; set; } = new();
 
     protected override async Task OnInitializedAsync()
     {
-        usuarios = IUsuarioService.ListarRegistros(Constants.USUARIO).OrderBy(i => i.Nome).ToList();
+        ListarRegistros();
     }
 
-    private async void AlterarUsuario(Usuario _usuario)
+    private void ListarRegistros()
+    {
+        usuarios = IUsuarioService.ListarRegistros(Constants.USUARIO).OrderByDescending(i => i.Nome).ToList();
+    }
+
+    private async void AdicionarAlterarUsuario(Usuario _usuario)
     {
         usuario = _usuario;
+        await JS.InvokeVoidAsync("ClicarTabEditarAddUsuario");
+    }
+
+    private async void RemoverUsuario(Usuario _usuario)
+    {
+        if (_usuario == null || _usuario.Id == Guid.Empty)
+            return;
+
+        IUsuarioService.Remover(_usuario.Id, ObjectFactory.EntityEnum.Usuario, Constants.USUARIO, Constants.ID);
+
+        ListarRegistros();
+
+        await JS.InvokeVoidAsync("AlertRemocao");
+    }
+
+    private async void AdicionarAlterarUsuario()
+    {
+        if (usuario == null ||
+            string.IsNullOrEmpty(usuario.Nome) ||
+            string.IsNullOrWhiteSpace(usuario.Nome) ||
+            string.IsNullOrEmpty(usuario.Email) ||
+            string.IsNullOrWhiteSpace(usuario.Email) ||
+            string.IsNullOrEmpty(usuario.Celular) ||
+            string.IsNullOrWhiteSpace(usuario.Celular)
+        )
+            return;
+
+        var _usuario = ObterPorId(usuario.Id);
+
+        if (_usuario == null)
+        {
+            IUsuarioService.Adicionar(usuario, Constants.ID, Constants.USUARIO);
+            ListarRegistros();
+            usuario = new();
+            await JS.InvokeVoidAsync("AlertAdicao");
+            await JS.InvokeVoidAsync("ClicarTabGerenciarUsuarios");
+        }
+        else if (_usuario != null)
+        {
+            IUsuarioService.Atualizar(usuario, Constants.ID, Constants.USUARIO);
+            ListarRegistros();
+            usuario = new();
+            await JS.InvokeVoidAsync("AlertEdicao");
+            await JS.InvokeVoidAsync("ClicarTabGerenciarUsuarios");
+        }
+    }
+
+    private Usuario? ObterPorId(Guid Id)
+    {
+        var usuario = IUsuarioService.EncontrarPorCodigo(Id, ObjectFactory.EntityEnum.Usuario, Constants.USUARIO, Constants.ID);
+        return usuario;
     }
 }
