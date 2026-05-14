@@ -1,0 +1,20 @@
+Update Date: 14/05/2026
+
+-------------------------------------------------------------------
+
+(blazor)
+
+Backend namespace:
+Backend.
+
+Frontend:
+PrjBlazor.VendaAutomoveis
+
+[projeto em: C:\Projetos\Blazor02\PrjBlazor]
+
+Avançar na parte de frontend;
+
+Voltar para o projeto de (angular) e avançar na parte de frontend.
+
+
+-------------------------------------------------------------------
